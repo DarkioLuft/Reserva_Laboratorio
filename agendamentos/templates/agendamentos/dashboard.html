@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Simulações Clínicas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Mantém as quebras de linha que vieram da planilha e formata o texto */
+        .temas-texto {
+            font-size: 0.85em;
+            color: #6c757d;
+            white-space: pre-line;
+        }
+        /* Efeito de ponteiro do mouse ao passar por cima do cabeçalho do dia */
+        .card-header-toggle:hover {
+            opacity: 0.9;
+            filter: brightness(0.95);
+        }
+    </style>
+</head>
+<body class="bg-light pb-5">
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold">📅 Painel de Simulações Clínicas</h2>
+    </div>
+
+    <div class="accordion mb-4 shadow-sm" id="accordionFormulario">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseForm">
+                    ➕ Adicionar Novo Agendamento
+                </button>
+            </h2>
+            <div id="collapseForm" class="accordion-collapse collapse" data-bs-parent="#accordionFormulario">
+                <div class="accordion-body bg-white">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <div class="col-md-2"><label class="form-label">Dia</label>{{ form.dia_semana }}</div>
+                        <div class="col-md-2"><label class="form-label">Data Início</label>{{ form.data_inicio }}</div>
+                        <div class="col-md-2"><label class="form-label">Data Fim</label>{{ form.data_fim }}</div>
+                        
+                        <div class="col-md-3"><label class="form-label">Sala</label>{{ form.sala }}</div>
+                        <div class="col-md-3"><label class="form-label">Professor(a)</label>{{ form.professor }}</div>
+                        
+                        <div class="col-md-2"><label class="form-label">Início</label>{{ form.horario_inicio }}</div>
+                        <div class="col-md-2"><label class="form-label">Fim</label>{{ form.horario_fim }}</div>
+                        <div class="col-md-2"><label class="form-label">Alunos</label>{{ form.qtd_alunos }}</div>
+                        <div class="col-md-6"><label class="form-label">Temas/Obs (Exceções de datas)</label>{{ form.temas }}</div>
+                        
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary px-4">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center mb-4 bg-white p-3 rounded shadow-sm border">
+        <span class="fw-bold me-3 text-secondary">Filtro Rápido de Salas:</span>
+        <div class="btn-group" role="group">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-primary {% if filtro_atual == 'todas' %}active{% endif %}">Todas as Salas</a>
+            <a href="{% url 'dashboard' %}?filtro=P8" class="btn btn-outline-primary {% if filtro_atual == 'P8' %}active{% endif %}">P08 e P8</a>
+            <a href="{% url 'dashboard' %}?filtro=P16" class="btn btn-outline-primary {% if filtro_atual == 'P16' %}active{% endif %}">P16</a>
+        </div>
+    </div>
+
+    {% for dia in agenda_semana %}
+    <div class="card shadow-sm mb-4 border-{{ dia.cor }}">
+        
+        <div class="card-header bg-{{ dia.cor }} text-white py-3 card-header-toggle d-flex justify-content-between align-items-center" 
+             data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" 
+             style="cursor: pointer;" title="Clique para expandir ou recolher">
+            <h4 class="mb-0 fw-bold">{{ dia.nome }}</h4>
+            <span class="fs-6">🔽</span>
+        </div>
+        
+        <div class="collapse show" id="collapse{{ forloop.counter }}">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 12%;">Horário</th>
+                                <th style="width: 15%;">Período</th>
+                                <th style="width: 10%;">Sala</th>
+                                <th style="width: 20%;">Professor(a)</th>
+                                <th style="width: 8%;">Alunos</th>
+                                <th style="width: 25%;">Temas / Observações</th>
+                                <th style="width: 10%;" class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in dia.agendamentos %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.horario_inicio|time:"H:i" }}</strong> às <strong>{{ item.horario_fim|time:"H:i" }}</strong>
+                                </td>
+                                <td>
+                                    {% if item.data_inicio and item.data_fim %}
+                                        <span class="badge bg-light text-dark border">
+                                            {{ item.data_inicio|date:"d/m/Y" }} a {{ item.data_fim|date:"d/m/Y" }}
+                                        </span>
+                                    {% elif item.data_inicio %}
+                                        <span class="badge bg-light text-dark border">Dia {{ item.data_inicio|date:"d/m/Y" }}</span>
+                                    {% else %}
+                                        <span class="text-muted small">Semestre todo</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="badge bg-secondary fs-6">{{ item.sala.nome }}</span></td>
+                                <td class="fw-semibold">{{ item.professor.nome }}</td>
+                                <td>{{ item.qtd_alunos }}</td>
+                                <td class="temas-texto">{{ item.temas|default:"-" }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'editar' item.id %}" class="btn btn-sm btn-outline-warning mb-1" title="Editar">✏️</a>
+                                    <a href="{% url 'deletar' item.id %}" class="btn btn-sm btn-outline-danger mb-1" onclick="return confirm('Tem certeza que deseja excluir?')" title="Excluir">🗑️</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    {% empty %}
+    <div class="alert alert-info text-center py-4 shadow-sm">
+        <h4>Nenhuma simulação agendada ainda!</h4>
+        <p>Use o botão acima para adicionar o primeiro agendamento ou remova os filtros.</p>
+    </div>
+    {% endfor %}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

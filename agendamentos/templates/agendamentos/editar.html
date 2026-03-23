@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Agendamento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 900px;">
+        <div class="card-header bg-warning text-dark py-3">
+            <h4 class="mb-0 fw-bold">✏️ Editar Agendamento</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" class="row g-3 p-2">
+                {% csrf_token %}
+                
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Dia da Semana</label>
+                    {{ form.dia_semana }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Data de Início</label>
+                    {{ form.data_inicio }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Data de Fim</label>
+                    {{ form.data_fim }}
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Sala/Turma</label>
+                    {{ form.sala }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Professor(a)</label>
+                    {{ form.professor }}
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Horário de Início</label>
+                    {{ form.horario_inicio }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Horário de Fim</label>
+                    {{ form.horario_fim }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Nº de Alunos</label>
+                    {{ form.qtd_alunos }}
+                </div>
+                
+                <div class="col-md-12">
+                    <label class="form-label fw-semibold">Temas / Observações (Exceções de datas)</label>
+                    {{ form.temas }}
+                </div>
+                
+                <div class="col-12 text-end mt-4 pt-3 border-top">
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary me-2 px-4">Cancelar</a>
+                    <button type="submit" class="btn btn-warning fw-bold px-4">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
