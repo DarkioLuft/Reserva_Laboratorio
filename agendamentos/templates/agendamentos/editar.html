@@ -4,23 +4,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Agendamento — Simulações Clínicas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy:  #1a2740;
+            --teal:  #0e8a7a;
+            --font:  'DM Sans', system-ui, sans-serif;
+            --radius: 10px;
+        }
+        body { font-family: var(--font); background: #f0f2f5; font-size: 14px; }
+
+        .topbar {
+            background: var(--navy);
+            padding: 0 2rem;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .topbar a { color: rgba(255,255,255,.75); text-decoration: none; font-size: .85rem; }
+        .topbar a:hover { color: #fff; }
+        .topbar-brand { color: #fff; font-weight: 700; font-size: .95rem; }
+
+        .page-wrapper {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(26,39,64,.1);
+            overflow: hidden;
+        }
+        .card-header-custom {
+            background: #f5a623;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-header-custom h4 { color: #000; font-weight: 700; margin: 0; font-size: 1rem; }
+        .card-header-custom .badge-desc {
+            background: rgba(0,0,0,.12);
+            color: #3a2000;
+            padding: .2rem .65rem;
+            border-radius: 20px;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+        .form-label { font-size: .8rem; font-weight: 600; color: #3a4554; margin-bottom: .25rem; }
+
+        /* Checkboxes em colunas */
+        .checkbox-cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: .25rem .75rem;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: .4rem .6rem;
+            background: #f8f9fb;
+            border: 1px solid #dde2e8;
+            border-radius: 6px;
+        }
+        .checkbox-cols label { font-size: .82rem; cursor: pointer; }
+
+        .esporadica-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .45rem .85rem;
+            border-radius: 6px;
+            background: #fff0f0;
+            border: 1.5px solid #f5c6cb;
+            cursor: pointer;
+            font-weight: 600;
+            color: #dc3545;
+            font-size: .85rem;
+        }
+        .esporadica-toggle:has(input:checked) {
+            background: #fdecea;
+            border-color: #dc3545;
+        }
+
+        .btn-salvar {
+            background: #f5a623;
+            border: none;
+            color: #000;
+            font-weight: 700;
+            padding: .55rem 2rem;
+            border-radius: 6px;
+            font-size: .9rem;
+            transition: filter .15s;
+        }
+        .btn-salvar:hover { filter: brightness(.9); }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container mt-5">
-    <div class="card shadow-sm mx-auto" style="max-width: 900px;">
-        <div class="card-header bg-warning text-dark py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 fw-bold">✏️ Editar Agendamento</h4>
-            <small class="opacity-75">{{ agendamento }}</small>
+<div class="topbar">
+    <span class="topbar-brand">🏥 Simulações Clínicas</span>
+    <a href="{% url 'dashboard' %}">← Voltar ao Painel</a>
+</div>
+
+<div class="page-wrapper">
+
+    {% if aviso_conflito %}
+    <div class="alert alert-danger border-0 rounded-3 mb-3 py-3">
+        <strong>🔴 Esta reserva foi sobreposta por uma reserva esporádica.</strong><br>
+        Por favor, <strong>altere o horário, a sala ou a data</strong> para realocar este agendamento —
+        ou <strong>exclua-o</strong> se não for mais necessário.
+        <br><a href="{% url 'deletar' agendamento.id %}"
+               class="btn btn-sm btn-danger mt-2"
+               onclick="return confirm('Tem certeza que deseja excluir?')">🗑️ Excluir este agendamento</a>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header-custom">
+            <h4>✏️ Editar Agendamento</h4>
+            <span class="badge-desc">{{ agendamento }}</span>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
 
-            <!-- Mensagens de sessão (ex: erro vindo de redirect) -->
             {% if messages %}
             <div class="mb-3">
                 {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show py-2">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -28,75 +143,102 @@
             </div>
             {% endif %}
 
-            <!-- Erros gerais (conflito de horário, etc.) -->
             {% if form.non_field_errors %}
-            <div class="alert alert-danger mb-3">
-                {% for error in form.non_field_errors %}
-                    <div>⚠️ {{ error }}</div>
-                {% endfor %}
+            <div class="alert alert-danger mb-3 py-2">
+                {% for error in form.non_field_errors %}<div>⚠️ {{ error }}</div>{% endfor %}
             </div>
             {% endif %}
 
-            <form method="POST" class="row g-3 p-2">
+            <form method="POST" class="row g-3">
                 {% csrf_token %}
 
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Dia da Semana</label>
+                <!-- Linha 1: Dia / Datas -->
+                <div class="col-md-3">
+                    <label class="form-label">Dia da Semana</label>
                     {{ form.dia_semana }}
-                    {% if form.dia_semana.errors %}<div class="text-danger small mt-1">{{ form.dia_semana.errors.0 }}</div>{% endif %}
+                    {% if form.dia_semana.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.dia_semana.errors.0 }}</div>{% endif %}
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Data de Início</label>
+                <div class="col-md-3">
+                    <label class="form-label">Data de Início</label>
                     {{ form.data_inicio }}
-                    {% if form.data_inicio.errors %}<div class="text-danger small mt-1">{{ form.data_inicio.errors.0 }}</div>{% endif %}
+                    {% if form.data_inicio.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.data_inicio.errors.0 }}</div>{% endif %}
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Data de Fim</label>
+                <div class="col-md-3">
+                    <label class="form-label">Data de Fim</label>
                     {{ form.data_fim }}
-                    {% if form.data_fim.errors %}<div class="text-danger small mt-1">{{ form.data_fim.errors.0 }}</div>{% endif %}
+                    {% if form.data_fim.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.data_fim.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-3 d-flex align-items-end pb-1">
+                    <label class="esporadica-toggle">
+                        {{ form.esporadica }}
+                        🔴 Esporádica
+                    </label>
                 </div>
 
+                <!-- Salas -->
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">Sala/Turma</label>
-                    {{ form.sala }}
-                    {% if form.sala.errors %}<div class="text-danger small mt-1">{{ form.sala.errors.0 }}</div>{% endif %}
+                    <label class="form-label">
+                        Sala(s)
+                        <span class="text-muted fw-normal">(selecione uma ou mais)</span>
+                    </label>
+                    <div class="checkbox-cols">
+                        {% for checkbox in form.salas %}
+                        <div class="form-check">
+                            {{ checkbox.tag }}
+                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.salas.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.salas.errors.0 }}</div>{% endif %}
                 </div>
+
+                <!-- Professores -->
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">Professor(a)</label>
-                    {{ form.professor }}
-                    {% if form.professor.errors %}<div class="text-danger small mt-1">{{ form.professor.errors.0 }}</div>{% endif %}
+                    <label class="form-label">
+                        Professor(es)
+                        <span class="text-muted fw-normal">(selecione um ou mais)</span>
+                    </label>
+                    <div class="checkbox-cols">
+                        {% for checkbox in form.professores %}
+                        <div class="form-check">
+                            {{ checkbox.tag }}
+                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.professores.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.professores.errors.0 }}</div>{% endif %}
                 </div>
 
-                <div class="col-md-12">
-                    <label class="form-label fw-semibold">Disciplina</label>
-                    {{ form.disciplina }}
-                    {% if form.disciplina.errors %}<div class="text-danger small mt-1">{{ form.disciplina.errors.0 }}</div>{% endif %}
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Horário de Início</label>
+                <!-- Horários -->
+                <div class="col-md-3">
+                    <label class="form-label">Horário de Início</label>
                     {{ form.horario_inicio }}
-                    {% if form.horario_inicio.errors %}<div class="text-danger small mt-1">{{ form.horario_inicio.errors.0 }}</div>{% endif %}
+                    {% if form.horario_inicio.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.horario_inicio.errors.0 }}</div>{% endif %}
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Horário de Fim</label>
+                <div class="col-md-3">
+                    <label class="form-label">Horário de Fim</label>
                     {{ form.horario_fim }}
-                    {% if form.horario_fim.errors %}<div class="text-danger small mt-1">{{ form.horario_fim.errors.0 }}</div>{% endif %}
+                    {% if form.horario_fim.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.horario_fim.errors.0 }}</div>{% endif %}
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Nº de Alunos</label>
+                <div class="col-md-3">
+                    <label class="form-label">Nº de Alunos</label>
                     {{ form.qtd_alunos }}
-                    {% if form.qtd_alunos.errors %}<div class="text-danger small mt-1">{{ form.qtd_alunos.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Disciplina</label>
+                    {{ form.disciplina }}
                 </div>
 
+                <!-- Temas -->
                 <div class="col-md-12">
-                    <label class="form-label fw-semibold">Temas / Observações</label>
+                    <label class="form-label">Temas / Observações</label>
                     {{ form.temas }}
                 </div>
 
-                <div class="col-12 text-end mt-4 pt-3 border-top">
-                    <a href="{% url 'dashboard' %}" class="btn btn-secondary me-2 px-4">Cancelar</a>
-                    <button type="submit" class="btn btn-warning fw-bold px-4">Salvar Alterações</button>
+                <!-- Ações -->
+                <div class="col-12 d-flex justify-content-between align-items-center border-top pt-3 mt-1">
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-4">Cancelar</a>
+                    <button type="submit" class="btn-salvar">Salvar Alterações</button>
                 </div>
             </form>
         </div>
