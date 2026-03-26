@@ -267,7 +267,7 @@ def dashboard(request):
         grade_semana.append({'turno': turno, 'celulas': celulas})
 
     # ── Conflitos pendentes (sessão) ──────────────────────────────────────────
-    ids_pendentes = request.session.pop('conflitos_pendentes', [])
+    ids_pendentes = request.session.get('conflitos_pendentes', [])
     conflitos_pendentes = []
     if ids_pendentes:
         conflitos_pendentes = list(
@@ -321,11 +321,22 @@ def editar_agendamento(request, id):
         form = AgendamentoForm(request.POST, instance=agendamento)
         if form.is_valid():
             form.save()
+                # ── Limpar o conflito resolvido da sessão ──────────────────────────────
+            if 'conflitos_pendentes' in request.session:
+                ids_pendentes = request.session['conflitos_pendentes']
+                
+                # Se o ID da reserva excluída estava na lista de pendências, removemos
+                if id in ids_pendentes:
+                    ids_pendentes.remove(id)
+                    request.session['conflitos_pendentes'] = ids_pendentes
+                    request.session.modified = True  # Avisa o Django que a lista mudou
             messages.success(request, '✅ Agendamento atualizado com sucesso!')
             return redirect('dashboard')
         messages.error(request, '❌ Corrija os erros abaixo antes de salvar.')
     else:
         form = AgendamentoForm(instance=agendamento)
+
+
 
     return render(request, 'agendamentos/editar.html', {
         'form':           form,

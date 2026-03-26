@@ -63,7 +63,7 @@ class Agendamento(models.Model):
     class Meta:
         verbose_name = 'Agendamento'
         verbose_name_plural = 'Agendamentos'
-        ordering = ['dia_semana', 'horario_inicio']
+        ordering = ['dia_semana','data_inicio', 'horario_inicio']
 
     def __str__(self):
         salas_str = ', '.join(s.nome for s in self.salas.all()) or '—'
