@@ -103,4 +103,8 @@ USE_TZ = True
 # ARQUIVOS ESTÁTICOS
 # -----------------------------------------------------------------
 STATIC_URL = 'static/'
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

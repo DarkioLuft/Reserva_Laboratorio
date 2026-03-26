@@ -1,421 +1,17 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel — Simulações Clínicas</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-        /* ── Design Tokens ───────────────────────────────────────────── */
-        :root {
-            --bg:           #f0f2f5;
-            --surface:      #ffffff;
-            --surface-2:    #f8f9fb;
-            --border:       #e2e6ea;
-            --border-strong:#c9d0d8;
-
-            --navy:         #1a2740;
-            --navy-mid:     #253550;
-            --teal:         #0e8a7a;
-            --teal-light:   #e6f5f3;
-            --teal-mid:     #b3ddd8;
-
-            --manha-bg:     #fff8e6;
-            --manha-accent: #e5a50a;
-            --tarde-bg:     #fff3eb;
-            --tarde-accent: #d46b08;
-            --noite-bg:     #eef0fb;
-            --noite-accent: #5254a3;
-
-            --esporadica:   #dc3545;
-            --esporadica-bg:#fff0f0;
-
-            --text-primary: #1a2740;
-            --text-secondary:#5a6472;
-            --text-muted:   #8d99a6;
-
-            --radius:       10px;
-            --radius-sm:    6px;
-            --shadow:       0 2px 8px rgba(26,39,64,.08);
-            --shadow-md:    0 4px 20px rgba(26,39,64,.12);
-
-            --font: 'DM Sans', system-ui, sans-serif;
-            --mono: 'DM Mono', monospace;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text-primary);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        /* ── Topbar ──────────────────────────────────────────────────── */
-        .topbar {
-            background: var(--navy);
-            padding: 0 2rem;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 12px rgba(0,0,0,.25);
-        }
-        .topbar-brand {
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-            color: #fff;
-            font-weight: 700;
-            font-size: 1rem;
-            letter-spacing: -.01em;
-        }
-        .topbar-brand span { font-size: 1.3rem; }
-        .topbar-right { display: flex; align-items: center; gap: 1rem; }
-        .topbar-user {
-            color: rgba(255,255,255,.65);
-            font-size: .82rem;
-        }
-        .btn-logout {
-            color: rgba(255,255,255,.75);
-            border: 1px solid rgba(255,255,255,.2);
-            border-radius: var(--radius-sm);
-            padding: .25rem .8rem;
-            font-size: .8rem;
-            background: none;
-            cursor: pointer;
-            transition: all .15s;
-            text-decoration: none;
-        }
-        .btn-logout:hover { background: rgba(255,255,255,.1); color: #fff; }
-
-        /* ── Layout Wrapper ──────────────────────────────────────────── */
-        .layout { max-width: 1600px; margin: 0 auto; padding: 1.5rem 1.5rem 3rem; }
-
-        /* ── Mensagens ───────────────────────────────────────────────── */
-        .flash-area { margin-bottom: 1rem; }
-        .flash-area .alert {
-            border-radius: var(--radius);
-            border: none;
-            font-size: .875rem;
-            font-weight: 500;
-        }
-
-        /* ── Conflitos Pendentes (pós-esporádica) ────────────────────── */
-        .conflitos-pendentes {
-            background: #fff8db;
-            border: 2px solid var(--manha-accent);
-            border-radius: var(--radius);
-            padding: 1rem 1.25rem;
-            margin-bottom: 1.25rem;
-        }
-        .conflitos-pendentes h6 { font-weight: 700; color: #92650a; margin-bottom: .6rem; }
-        .conflito-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #fff;
-            border-radius: var(--radius-sm);
-            padding: .4rem .75rem;
-            margin-bottom: .4rem;
-            border: 1px solid #f0d89a;
-            font-size: .82rem;
-        }
-
-        /* ── Accordion — Formulário ──────────────────────────────────── */
-        .form-panel {
-            background: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 1.25rem;
-            overflow: hidden;
-        }
-        .form-panel-header {
-            background: var(--navy);
-            color: #fff;
-            padding: .8rem 1.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            user-select: none;
-            font-weight: 600;
-            font-size: .9rem;
-            transition: background .15s;
-        }
-        .form-panel-header:hover { background: var(--navy-mid); }
-        .form-panel-header .chevron { transition: transform .25s; font-size: .75rem; }
-        .form-panel-header.open .chevron { transform: rotate(180deg); }
-        .form-panel-body { display: none; padding: 1.25rem 1.5rem; }
-        .form-panel-body.open { display: block; }
-
-        /* Checkboxes M2M em colunas */
-        .checkbox-cols {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: .25rem .75rem;
-            max-height: 140px;
-            overflow-y: auto;
-            padding: .4rem;
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-        }
-        .checkbox-cols .form-check { margin: 0; }
-        .checkbox-cols label { font-size: .82rem; cursor: pointer; }
-
-        /* Badge esporádica */
-        .esporadica-toggle {
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-            padding: .5rem .85rem;
-            border-radius: var(--radius-sm);
-            background: var(--esporadica-bg);
-            border: 1.5px solid #f5c6cb;
-            cursor: pointer;
-            transition: all .15s;
-        }
-        .esporadica-toggle:has(input:checked) {
-            background: #fdecea;
-            border-color: var(--esporadica);
-        }
-        .esporadica-toggle label { cursor: pointer; font-weight: 600; color: var(--esporadica); font-size: .85rem; }
-
-        /* ── Filtros ─────────────────────────────────────────────────── */
-        .filtros {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: .4rem;
-            margin-bottom: 1.25rem;
-            background: var(--surface);
-            padding: .75rem 1rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-        .filtros-label { font-weight: 600; color: var(--text-secondary); font-size: .8rem; margin-right: .25rem; white-space: nowrap; }
-        .filtro-btn {
-            border: 1.5px solid var(--border-strong);
-            border-radius: 20px;
-            padding: .2rem .75rem;
-            font-size: .78rem;
-            font-weight: 500;
-            background: var(--surface);
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: all .15s;
-            white-space: nowrap;
-        }
-        .filtro-btn:hover { border-color: var(--teal); color: var(--teal); }
-        .filtro-btn.active { background: var(--teal); border-color: var(--teal); color: #fff; }
-
-        /* ── Grade Semanal ───────────────────────────────────────────── */
-        .grade-wrapper {
-            background: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .grade-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        /* Cabeçalho — Dias da semana */
-        .grade-table thead th {
-            background: var(--navy);
-            color: rgba(255,255,255,.9);
-            text-align: center;
-            padding: .85rem .5rem;
-            font-weight: 600;
-            font-size: .8rem;
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            border-right: 1px solid rgba(255,255,255,.08);
-        }
-        .grade-table thead th.col-turno {
-            width: 100px;
-            background: var(--navy-mid);
-            text-align: left;
-            padding-left: 1rem;
-        }
-        .grade-table thead th .dia-nome-completo { display: block; font-size: .75rem; }
-        .grade-table thead th .dia-nome-curto    { display: none; font-size: .8rem; }
-
-        /* Corpo — Turnos */
-        .grade-table tbody tr { border-bottom: 2px solid var(--bg); }
-        .grade-table tbody tr:last-child { border-bottom: none; }
-
-        /* Célula de label do turno */
-        .turno-cell {
-            vertical-align: top;
-            padding: .75rem .6rem .75rem 1rem;
-            border-right: 2px solid var(--bg);
-            white-space: nowrap;
-            min-width: 90px;
-        }
-        .turno-cell.manha { background: var(--manha-bg); }
-        .turno-cell.tarde { background: var(--tarde-bg); }
-        .turno-cell.noite { background: var(--noite-bg); }
-
-        .turno-icone { font-size: 1.2rem; display: block; margin-bottom: .15rem; }
-        .turno-label { font-weight: 700; font-size: .8rem; display: block; }
-        .turno-horario { font-size: .7rem; color: var(--text-muted); font-family: var(--mono); display: block; }
-        .turno-label.manha  { color: var(--manha-accent); }
-        .turno-label.tarde  { color: var(--tarde-accent); }
-        .turno-label.noite  { color: var(--noite-accent); }
-
-        /* Célula de reservas */
-        .dia-cell {
-            vertical-align: top;
-            padding: .5rem;
-            border-right: 1px solid var(--border);
-            min-height: 80px;
-        }
-        .dia-cell:last-child { border-right: none; }
-        .dia-cell.manha-row { background: color-mix(in srgb, var(--manha-bg) 30%, white); }
-        .dia-cell.tarde-row { background: color-mix(in srgb, var(--tarde-bg) 30%, white); }
-        .dia-cell.noite-row { background: color-mix(in srgb, var(--noite-bg) 30%, white); }
-
-        /* ── Card de Reserva ─────────────────────────────────────────── */
-        .reserva-card {
-            background: var(--surface);
-            border-radius: var(--radius-sm);
-            border: 1.5px solid var(--border);
-            padding: .45rem .6rem;
-            margin-bottom: .4rem;
-            position: relative;
-            transition: box-shadow .15s, transform .1s;
-            overflow: hidden;
-        }
-        .reserva-card::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 3px;
-        }
-        .reserva-card.manha::before { background: var(--manha-accent); }
-        .reserva-card.tarde::before { background: var(--tarde-accent); }
-        .reserva-card.noite::before { background: var(--noite-accent); }
-        .reserva-card.esporadica { border-color: var(--esporadica); background: var(--esporadica-bg); }
-        .reserva-card.esporadica::before { background: var(--esporadica); }
-        .reserva-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-
-        .reserva-hora {
-            font-family: var(--mono);
-            font-size: .72rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: .2rem;
-        }
-        .reserva-badge-esp {
-            display: inline-block;
-            background: var(--esporadica);
-            color: #fff;
-            font-size: .62rem;
-            font-weight: 700;
-            padding: .1rem .35rem;
-            border-radius: 3px;
-            letter-spacing: .05em;
-            margin-left: .3rem;
-        }
-        .reserva-salas { display: flex; flex-wrap: wrap; gap: .2rem; margin-bottom: .25rem; }
-        .sala-badge {
-            background: var(--navy);
-            color: rgba(255,255,255,.9);
-            font-size: .65rem;
-            font-weight: 600;
-            padding: .1rem .4rem;
-            border-radius: 3px;
-            letter-spacing: .02em;
-        }
-        .reserva-prof {
-            font-size: .75rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .reserva-disc {
-            font-size: .7rem;
-            color: var(--teal);
-            font-weight: 500;
-            margin-top: .1rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .reserva-alunos {
-            font-size: .68rem;
-            color: var(--text-muted);
-        }
-        .reserva-acoes {
-            display: none;
-            position: absolute;
-            top: .3rem;
-            right: .3rem;
-            gap: .2rem;
-        }
-        .reserva-card:hover .reserva-acoes { display: flex; }
-        .btn-acao {
-            width: 22px; height: 22px;
-            border-radius: 4px;
-            border: none;
-            display: flex; align-items: center; justify-content: center;
-            font-size: .7rem;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background .1s;
-        }
-        .btn-acao-edit  { background: #fff3cd; color: #856404; }
-        .btn-acao-edit:hover  { background: #ffc107; color: #000; }
-        .btn-acao-del   { background: #f8d7da; color: #842029; }
-        .btn-acao-del:hover   { background: #dc3545; color: #fff; }
-
-        .celula-vazia {
-            text-align: center;
-            color: var(--border-strong);
-            font-size: .75rem;
-            padding: .5rem 0;
-        }
-
-        /* ── Modal de Conflito ───────────────────────────────────────── */
-        .modal-header-conflito { background: #dc3545; color: #fff; }
-        .conflito-row {
-            border: 1px solid #f5c6cb;
-            border-radius: var(--radius-sm);
-            padding: .6rem .85rem;
-            margin-bottom: .5rem;
-            background: #fff5f5;
-            font-size: .85rem;
-        }
-        .conflito-row .tag { display: inline-block; background: var(--navy); color: #fff; border-radius: 3px; padding: .05rem .35rem; font-size: .7rem; margin-right: .2rem; }
-
-        /* ── Responsive ──────────────────────────────────────────────── */
-        @media (max-width: 900px) {
-            .grade-table thead th .dia-nome-completo { display: none; }
-            .grade-table thead th .dia-nome-curto    { display: block; }
-            .turno-horario { display: none; }
-            .reserva-disc  { display: none; }
-        }
-        @media (max-width: 640px) {
-            .layout { padding: .75rem .75rem 2rem; }
-            .turno-cell { min-width: 56px; padding: .5rem .3rem .5rem .5rem; }
-            .dia-cell   { padding: .3rem; }
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'agendamentos/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'agendamentos/css/dashboard.css' %}">
 </head>
 <body>
 
@@ -488,21 +84,27 @@
                 {% csrf_token %}
                 <input type="hidden" name="confirmar_sobreposicao" id="id_confirmar_sobreposicao" value="0">
 
-                <!-- Linha 1: Dia / Datas -->
+                <!-- Linha 1: Dia / Datas / Horários / Alunos -->
                 <div class="col-md-2">
                     <label class="form-label fw-semibold mb-1" style="font-size:.8rem;">Dia da Semana</label>
                     {{ form.dia_semana }}
-                    {% if form.dia_semana.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.dia_semana.errors.0 }}</div>{% endif %}
+                    {% if form.dia_semana.errors %}
+                    <div class="text-danger" style="font-size:.75rem;">{{ form.dia_semana.errors.0 }}</div>
+                    {% endif %}
                 </div>
                 <div class="col-md-2">
                     <label class="form-label fw-semibold mb-1" style="font-size:.8rem;">Data Início</label>
                     {{ form.data_inicio }}
-                    {% if form.data_inicio.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.data_inicio.errors.0 }}</div>{% endif %}
+                    {% if form.data_inicio.errors %}
+                    <div class="text-danger" style="font-size:.75rem;">{{ form.data_inicio.errors.0 }}</div>
+                    {% endif %}
                 </div>
                 <div class="col-md-2">
                     <label class="form-label fw-semibold mb-1" style="font-size:.8rem;">Data Fim</label>
                     {{ form.data_fim }}
-                    {% if form.data_fim.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.data_fim.errors.0 }}</div>{% endif %}
+                    {% if form.data_fim.errors %}
+                    <div class="text-danger" style="font-size:.75rem;">{{ form.data_fim.errors.0 }}</div>
+                    {% endif %}
                 </div>
                 <div class="col-md-2">
                     <label class="form-label fw-semibold mb-1" style="font-size:.8rem;">Horário Início</label>
@@ -531,7 +133,9 @@
                         </div>
                         {% endfor %}
                     </div>
-                    {% if form.salas.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.salas.errors.0 }}</div>{% endif %}
+                    {% if form.salas.errors %}
+                    <div class="text-danger" style="font-size:.75rem;">{{ form.salas.errors.0 }}</div>
+                    {% endif %}
                 </div>
 
                 <!-- Linha 2: Professores -->
@@ -548,7 +152,9 @@
                         </div>
                         {% endfor %}
                     </div>
-                    {% if form.professores.errors %}<div class="text-danger" style="font-size:.75rem;">{{ form.professores.errors.0 }}</div>{% endif %}
+                    {% if form.professores.errors %}
+                    <div class="text-danger" style="font-size:.75rem;">{{ form.professores.errors.0 }}</div>
+                    {% endif %}
                 </div>
 
                 <!-- Linha 3: Disciplina / Temas / Esporádica -->
@@ -568,7 +174,7 @@
                 </div>
 
                 <div class="col-12 text-end border-top pt-2 mt-1">
-                    <button type="submit" class="btn btn-primary px-5 fw-semibold" id="btnSalvar">Salvar Agendamento</button>
+                    <button type="submit" class="btn btn-primary px-5 fw-semibold">Salvar Agendamento</button>
                 </div>
             </form>
         </div>
@@ -607,52 +213,44 @@
                 <tbody>
                     {% for linha in grade_semana %}
                     <tr>
-                        <!-- Label do turno -->
                         <td class="turno-cell {{ linha.turno.key }}">
                             <span class="turno-icone">{{ linha.turno.icone }}</span>
                             <span class="turno-label {{ linha.turno.key }}">{{ linha.turno.label }}</span>
                             <span class="turno-horario">{{ linha.turno.horario }}</span>
                         </td>
 
-                        <!-- Células por dia -->
                         {% for celula in linha.celulas %}
                         <td class="dia-cell {{ linha.turno.key }}-row">
                             {% for ag in celula.agendamentos %}
                             <div class="reserva-card {{ linha.turno.key }} {% if ag.esporadica %}esporadica{% endif %}">
 
-                                <!-- Ações (hover) -->
                                 <div class="reserva-acoes">
                                     <a href="{% url 'editar' ag.id %}" class="btn-acao btn-acao-edit" title="Editar">✏️</a>
                                     <a href="{% url 'deletar' ag.id %}" class="btn-acao btn-acao-del"
                                        onclick="return confirm('Excluir este agendamento?')" title="Excluir">🗑️</a>
                                 </div>
 
-                                <!-- Horário -->
                                 <div class="reserva-hora">
                                     {{ ag.horario_inicio|time:"H:i" }}–{{ ag.horario_fim|time:"H:i" }}
                                     {% if ag.esporadica %}<span class="reserva-badge-esp">ESP</span>{% endif %}
                                 </div>
 
-                                <!-- Salas -->
                                 <div class="reserva-salas">
                                     {% for sala in ag.salas.all %}
                                     <span class="sala-badge">{{ sala.nome }}</span>
                                     {% endfor %}
                                 </div>
 
-                                <!-- Professores -->
                                 <div class="reserva-prof">
                                     {% for prof in ag.professores.all %}
                                         {{ prof.nome }}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </div>
 
-                                <!-- Disciplina -->
                                 {% if ag.disciplina %}
                                 <div class="reserva-disc">{{ ag.disciplina }}</div>
                                 {% endif %}
 
-                                <!-- Período / alunos -->
                                 {% if ag.data_inicio %}
                                 <div class="reserva-alunos">
                                     {{ ag.data_inicio|date:"d/m" }}{% if ag.data_fim %} – {{ ag.data_fim|date:"d/m" }}{% endif %}
@@ -661,6 +259,7 @@
                                 {% elif ag.qtd_alunos %}
                                 <div class="reserva-alunos">{{ ag.qtd_alunos }} alunos</div>
                                 {% endif %}
+
                             </div>
                             {% empty %}
                             <div class="celula-vazia">—</div>
@@ -677,7 +276,7 @@
 </div><!-- /layout -->
 
 
-<!-- ══════════════════ MODAL DE CONFLITO (Esporádica) ═════════════════════ -->
+<!-- ══════════════════ MODAL DE CONFLITO ══════════════════════════════════ -->
 <div class="modal fade" id="modalConflito" tabindex="-1" aria-labelledby="modalConflitoLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="border-radius: var(--radius); overflow: hidden;">
@@ -707,99 +306,18 @@
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Configuração passada do servidor para os scripts externos -->
 <script>
-// ─── Toggle do painel de formulário ─────────────────────────────────────────
-const formToggle = document.getElementById('formToggle');
-const formBody   = document.getElementById('formBody');
-
-formToggle.addEventListener('click', () => {
-    const isOpen = formBody.classList.contains('open');
-    formBody.classList.toggle('open', !isOpen);
-    formToggle.classList.toggle('open', !isOpen);
-});
-
-// ─── Fluxo de reserva esporádica ────────────────────────────────────────────
-{% if mostrar_modal_conflito %}
-// O servidor detectou conflitos — exibe o modal imediatamente (fallback sem JS no submit)
-document.addEventListener('DOMContentLoaded', () => {
-    // Bug 1 fix: conflitos_data_modal_json já é JSON válido gerado por json.dumps()
-    const conflitos = {{ conflitos_data_modal_json|safe }};
-
-    // Abre o formulário para o usuário ver o contexto
-    formBody.classList.add('open');
-    formToggle.classList.add('open');
-
-    mostrarModalConflito(conflitos);
-});
-{% endif %}
-
-function mostrarModalConflito(conflitos) {
-    const modalEl = document.getElementById('modalConflito');
-    // Bug 3 fix: getOrCreateInstance evita erro ao chamar a função mais de uma vez
-    const modal   = bootstrap.Modal.getOrCreateInstance(modalEl);
-
-    document.getElementById('qtdConflitos').textContent = conflitos.length;
-
-    const lista = document.getElementById('listaConflitos');
-    lista.innerHTML = '';
-    conflitos.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'conflito-row';
-        const salas = c.salas.map(s => `<span class="tag">${s}</span>`).join(' ');
-        const profs = c.professores.join(', ');
-        const disc  = c.disciplina ? `<em style="color:var(--teal);"> — ${c.disciplina}</em>` : '';
-        const esp   = c.esporadica ? '<span class="badge bg-danger ms-1" style="font-size:.65rem;">ESPORÁDICA</span>' : '';
-        div.innerHTML = `
-            <strong>${c.dia}</strong> · ${c.horario} ${esp}<br>
-            ${salas} · ${profs}${disc}
-        `;
-        lista.appendChild(div);
-    });
-
-    modal.show();
-}
-
-// Botão confirmar sobreposição
-document.getElementById('btnConfirmarSobreposicao').addEventListener('click', () => {
-    document.getElementById('id_confirmar_sobreposicao').value = '1';
-    document.getElementById('formAgendamento').submit();
-});
-
-// ─── Formulário: intercepta submit para checar esporádica via fetch ──────────
-document.getElementById('formAgendamento').addEventListener('submit', async function(e) {
-    const esporadica   = document.getElementById('id_esporadica').checked;
-    const jaConfirmado = document.getElementById('id_confirmar_sobreposicao').value === '1';
-
-    if (!esporadica || jaConfirmado) return; // submissão normal
-
-    e.preventDefault();
-
-    const fd = new FormData(this);
-    const params = new URLSearchParams();
-    for (const [k, v] of fd.entries()) {
-        params.append(k, v);
-    }
-
-    try {
-        const resp = await fetch('{% url "verificar_conflito" %}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString(),
-        });
-        const data = await resp.json();
-
-        if (data.conflitos && data.conflitos.length > 0) {
-            mostrarModalConflito(data.conflitos);
-        } else {
-            // Sem conflitos — envia normalmente
-            this.submit();
-        }
-    } catch (err) {
-        console.error('Erro ao verificar conflito:', err);
-        this.submit(); // fallback
-    }
-});
+window.SC_CONFIG = {
+    verificarConflitoUrl: "{% url 'verificar_conflito' %}",
+    mostrarModal:         {{ mostrar_modal_conflito|yesno:"true,false" }},
+    conflitosIniciais:    {{ conflitos_data_modal_json|safe }},
+    agendamentoId:        null
+};
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'agendamentos/js/conflito-modal.js' %}"></script>
+<script src="{% static 'agendamentos/js/dashboard.js' %}"></script>
 </body>
 </html>

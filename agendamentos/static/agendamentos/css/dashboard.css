@@ -1,0 +1,307 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   dashboard.css — Estilos exclusivos do painel principal
+   Sistema de Agendamentos — Simulações Clínicas
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Layout Wrapper ──────────────────────────────────────────────────────── */
+.layout { max-width: 1600px; margin: 0 auto; padding: 1.5rem 1.5rem 3rem; }
+
+/* ── Conflitos Pendentes (pós-esporádica) ────────────────────────────────── */
+.conflitos-pendentes {
+    background: #fff8db;
+    border: 2px solid var(--manha-accent);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.conflitos-pendentes h6 { font-weight: 700; color: #92650a; margin-bottom: .6rem; }
+
+.conflito-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: var(--radius-sm);
+    padding: .4rem .75rem;
+    margin-bottom: .4rem;
+    border: 1px solid #f0d89a;
+    font-size: .82rem;
+}
+
+/* ── Accordion — Formulário ──────────────────────────────────────────────── */
+.form-panel {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+}
+
+.form-panel-header {
+    background: var(--navy);
+    color: #fff;
+    padding: .8rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 600;
+    font-size: .9rem;
+    transition: background .15s;
+}
+
+.form-panel-header:hover { background: var(--navy-mid); }
+
+.form-panel-header .chevron { transition: transform .25s; font-size: .75rem; }
+
+.form-panel-header.open .chevron { transform: rotate(180deg); }
+
+.form-panel-body { display: none; padding: 1.25rem 1.5rem; }
+
+.form-panel-body.open { display: block; }
+
+/* ── Filtros ─────────────────────────────────────────────────────────────── */
+.filtros {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-bottom: 1.25rem;
+    background: var(--surface);
+    padding: .75rem 1rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.filtros-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: .8rem;
+    margin-right: .25rem;
+    white-space: nowrap;
+}
+
+.filtro-btn {
+    border: 1.5px solid var(--border-strong);
+    border-radius: 20px;
+    padding: .2rem .75rem;
+    font-size: .78rem;
+    font-weight: 500;
+    background: var(--surface);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all .15s;
+    white-space: nowrap;
+}
+
+.filtro-btn:hover { border-color: var(--teal); color: var(--teal); }
+.filtro-btn.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+/* ── Grade Semanal ───────────────────────────────────────────────────────── */
+.grade-wrapper {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.grade-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+/* Cabeçalho — Dias da semana */
+.grade-table thead th {
+    background: var(--navy);
+    color: rgba(255,255,255,.9);
+    text-align: center;
+    padding: .85rem .5rem;
+    font-weight: 600;
+    font-size: .8rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    border-right: 1px solid rgba(255,255,255,.08);
+}
+
+.grade-table thead th.col-turno {
+    width: 100px;
+    background: var(--navy-mid);
+    text-align: left;
+    padding-left: 1rem;
+}
+
+.grade-table thead th .dia-nome-completo { display: block; font-size: .75rem; }
+.grade-table thead th .dia-nome-curto    { display: none;  font-size: .8rem;  }
+
+/* Corpo — Turnos */
+.grade-table tbody tr { border-bottom: 2px solid var(--bg); }
+.grade-table tbody tr:last-child { border-bottom: none; }
+
+/* Célula de label do turno */
+.turno-cell {
+    vertical-align: top;
+    padding: .75rem .6rem .75rem 1rem;
+    border-right: 2px solid var(--bg);
+    white-space: nowrap;
+    min-width: 90px;
+}
+
+.turno-cell.manha { background: var(--manha-bg); }
+.turno-cell.tarde { background: var(--tarde-bg); }
+.turno-cell.noite { background: var(--noite-bg); }
+
+.turno-icone  { font-size: 1.2rem; display: block; margin-bottom: .15rem; }
+.turno-label  { font-weight: 700; font-size: .8rem; display: block; }
+.turno-horario{ font-size: .7rem; color: var(--text-muted); font-family: var(--mono); display: block; }
+
+.turno-label.manha { color: var(--manha-accent); }
+.turno-label.tarde { color: var(--tarde-accent); }
+.turno-label.noite { color: var(--noite-accent); }
+
+/* Célula de reservas */
+.dia-cell {
+    vertical-align: top;
+    padding: .5rem;
+    border-right: 1px solid var(--border);
+    min-height: 80px;
+}
+
+.dia-cell:last-child { border-right: none; }
+.dia-cell.manha-row { background: color-mix(in srgb, var(--manha-bg) 30%, white); }
+.dia-cell.tarde-row { background: color-mix(in srgb, var(--tarde-bg) 30%, white); }
+.dia-cell.noite-row { background: color-mix(in srgb, var(--noite-bg) 30%, white); }
+
+/* ── Card de Reserva ─────────────────────────────────────────────────────── */
+.reserva-card {
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    padding: .45rem .6rem;
+    margin-bottom: .4rem;
+    position: relative;
+    transition: box-shadow .15s, transform .1s;
+    overflow: hidden;
+}
+
+.reserva-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+}
+
+.reserva-card.manha::before { background: var(--manha-accent); }
+.reserva-card.tarde::before { background: var(--tarde-accent); }
+.reserva-card.noite::before { background: var(--noite-accent); }
+
+.reserva-card.esporadica {
+    border-color: var(--esporadica);
+    background: var(--esporadica-bg);
+}
+
+.reserva-card.esporadica::before { background: var(--esporadica); }
+.reserva-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+.reserva-hora {
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: .2rem;
+}
+
+.reserva-badge-esp {
+    display: inline-block;
+    background: var(--esporadica);
+    color: #fff;
+    font-size: .62rem;
+    font-weight: 700;
+    padding: .1rem .35rem;
+    border-radius: 3px;
+    letter-spacing: .05em;
+    margin-left: .3rem;
+}
+
+.reserva-salas { display: flex; flex-wrap: wrap; gap: .2rem; margin-bottom: .25rem; }
+
+.sala-badge {
+    background: var(--navy);
+    color: rgba(255,255,255,.9);
+    font-size: .65rem;
+    font-weight: 600;
+    padding: .1rem .4rem;
+    border-radius: 3px;
+    letter-spacing: .02em;
+}
+
+.reserva-prof {
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reserva-disc {
+    font-size: .7rem;
+    color: var(--teal);
+    font-weight: 500;
+    margin-top: .1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reserva-alunos { font-size: .68rem; color: var(--text-muted); }
+
+.reserva-acoes {
+    display: none;
+    position: absolute;
+    top: .3rem;
+    right: .3rem;
+    gap: .2rem;
+}
+
+.reserva-card:hover .reserva-acoes { display: flex; }
+
+.btn-acao {
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .1s;
+}
+
+.btn-acao-edit { background: #fff3cd; color: #856404; }
+.btn-acao-edit:hover { background: #ffc107; color: #000; }
+
+.btn-acao-del { background: #f8d7da; color: #842029; }
+.btn-acao-del:hover { background: #dc3545; color: #fff; }
+
+.celula-vazia {
+    text-align: center;
+    color: var(--border-strong);
+    font-size: .75rem;
+    padding: .5rem 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .grade-table thead th .dia-nome-completo { display: none; }
+    .grade-table thead th .dia-nome-curto    { display: block; }
+    .turno-horario { display: none; }
+    .reserva-disc  { display: none; }
+}
+
+@media (max-width: 640px) {
+    .layout     { padding: .75rem .75rem 2rem; }
+    .turno-cell { min-width: 56px; padding: .5rem .3rem .5rem .5rem; }
+    .dia-cell   { padding: .3rem; }
+}

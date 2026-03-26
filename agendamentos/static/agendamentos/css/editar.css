@@ -1,0 +1,90 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   editar.css — Estilos exclusivos da tela de edição
+   Sistema de Agendamentos — Simulações Clínicas
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Topbar da página de edição (mais compacta) */
+.topbar { height: 56px; }
+
+.topbar a {
+    color: rgba(255,255,255,.75);
+    text-decoration: none;
+    font-size: .85rem;
+}
+
+.topbar a:hover { color: #fff; }
+
+.topbar-brand {
+    color: #fff;
+    font-weight: 700;
+    font-size: .95rem;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.page-wrapper {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.card {
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 20px rgba(26,39,64,.1);
+    overflow: hidden;
+}
+
+.card-header-custom {
+    background: #f5a623;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-header-custom h4 {
+    color: #000;
+    font-weight: 700;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.card-header-custom .badge-desc {
+    background: rgba(0,0,0,.12);
+    color: #3a2000;
+    padding: .2rem .65rem;
+    border-radius: 20px;
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+/* ── Rótulos do formulário ───────────────────────────────────────────────── */
+.form-label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: #3a4554;
+    margin-bottom: .25rem;
+}
+
+/* ── Checkboxes (sobrescreve o max-height da shared para tela mais ampla) ── */
+.checkbox-cols {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    max-height: 150px;
+    padding: .4rem .6rem;
+}
+
+/* ── Botão Salvar ────────────────────────────────────────────────────────── */
+.btn-salvar {
+    background: #f5a623;
+    border: none;
+    color: #000;
+    font-weight: 700;
+    padding: .55rem 2rem;
+    border-radius: 6px;
+    font-size: .9rem;
+    transition: filter .15s;
+    cursor: pointer;
+}
+
+.btn-salvar:hover { filter: brightness(.9); }
